@@ -1,0 +1,96 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Find your home</title>
+<style>
+:root{--bg:#e9eeee;--ink:#172127;--mute:#5c6b72;--slate:#1f3a4d;--fir:#2d6a4f;--porch:#f2b233;--line:#cdd8d8}
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font:20px/1.4 "Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--ink);user-select:none;-webkit-user-select:none;overflow:hidden}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:700;margin:0}
+button{font:inherit;min-height:56px;padding:0 24px;border-radius:12px;border:2px solid var(--slate);background:#fff;color:var(--slate);cursor:pointer;font-weight:600}
+button:focus-visible,input:focus-visible{outline:4px solid var(--porch);outline-offset:2px}
+button.pri{background:var(--fir);border-color:var(--fir);color:#fff}button.warm{background:var(--porch);border-color:var(--porch);color:var(--ink)}
+.app{display:grid;grid-template-columns:310px 1fr;height:100%}
+aside{background:var(--slate);color:#fff;padding:22px;overflow:auto}
+aside h1{font-size:32px;line-height:1.1;margin-bottom:8px}aside p{margin:0 0 20px;color:#c3d3da;font-size:17px}
+.grp{margin-bottom:18px}.grp b{display:block;font-size:17px;margin-bottom:8px;color:#c3d3da;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{min-height:48px;padding:0 16px;border-radius:24px;border:2px solid #5a7787;background:transparent;color:#fff;font-weight:500}
+.chip.on{background:var(--porch);border-color:var(--porch);color:var(--ink);font-weight:700}
+main{display:flex;flex-direction:column;min-width:0;height:100%}
+.top{display:flex;gap:12px;padding:16px 24px;align-items:center}
+input{font:inherit;user-select:text;-webkit-user-select:text}
+.top input{flex:1;min-width:0;height:56px;border-radius:12px;border:2px solid var(--line);padding:0 18px}
+.count{padding:0 24px 8px;color:var(--mute)}
+.grid{flex:1;overflow:auto;padding:0 24px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;align-content:start}
+.card{background:#fff;border-radius:16px;overflow:hidden;border:1px solid var(--line);cursor:pointer;position:relative}
+.card:active{transform:scale(.98)}
+.ph{aspect-ratio:3/2;background:#cfd9d9 center/cover no-repeat}
+.card .b{padding:14px 18px 18px}.card h3{font-size:22px}.card small{color:var(--mute);font-size:16px}
+.stats{display:flex;gap:22px;margin-top:10px}
+.stats div{font-size:15px;color:var(--mute);line-height:1.1}.stats strong{display:block;font:700 30px/1 Georgia,serif;color:var(--ink)}
+.tag{position:absolute;top:12px;left:12px;background:var(--porch);font-weight:700;font-size:15px;padding:5px 12px;border-radius:20px}
+.heart{position:absolute;top:8px;right:8px;width:56px;height:56px;padding:0;border-radius:50%;font-size:28px;border-color:#fff}
+.heart.on{background:var(--porch);border-color:var(--porch)}
+.ov{position:fixed;inset:0;background:var(--bg);z-index:5;display:flex;flex-direction:column}.ov.hide{display:none}
+.bar{display:flex;gap:12px;padding:14px 24px;background:var(--slate);align-items:center;flex-wrap:wrap}
+.bar h2{color:#fff;flex:1;font-size:26px;min-width:200px}
+.det{flex:1;overflow:auto;display:grid;grid-template-columns:1.2fr 1fr;gap:28px;padding:24px;align-content:start}
+.det .ph{border-radius:16px}.det p{max-width:60ch;line-height:1.55}
+.big{display:flex;gap:30px;margin:0 0 6px}.big div{color:var(--mute);line-height:1.1}.big strong{display:block;font:700 46px/1 Georgia,serif;color:var(--ink)}
+.acts{display:flex;flex-direction:column;gap:10px;margin:18px 0}
+details{background:#fff;border-radius:12px;margin-top:10px;padding:4px 18px;border:1px solid var(--line)}
+summary{min-height:52px;display:flex;align-items:center;font-weight:600;cursor:pointer}
+dl{margin:0 0 12px;font-size:17px}dt{font-weight:600;margin-top:8px}dd{margin:0;color:var(--mute)}
+iframe{flex:1;border:0;width:100%;background:#fff}
+.form{max-width:520px;margin:36px auto;padding:0 24px}.form input{width:100%;height:60px;margin:6px 0 16px;border-radius:12px;border:2px solid var(--line);padding:0 16px}
+@media(max-width:900px){.app{grid-template-columns:1fr;grid-template-rows:auto 1fr}aside{padding:14px;max-height:40vh}.det{grid-template-columns:1fr}}
+</style></head><body>
+<div class="app"><aside><h1>Find your next home</h1><p>Pick what matters to you, then tap a home to see more.</p><div id="filters"></div><button id="clear" style="width:100%">Clear my choices</button></aside>
+<main><div class="top"><input id="q" placeholder="Search by name or model number"><button id="saved" class="warm">Saved (0)</button><button id="talk" class="pri">Talk to someone</button></div><div class="count" id="count"></div><div class="grid" id="grid"></div></main></div>
+<div class="ov hide" id="det"></div><div class="ov hide" id="frame"></div><div class="ov hide" id="lead"></div>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let plans=[],fav=new Set(),sel={},q='',only=false,timer;
+const G=[['Bedrooms','beds',[['Any'],['1',1],['2',2],['3',3],['4+',4]]],['Bathrooms','baths',[['Any'],['1',1],['2',2],['3+',3]]],
+['Size (sq ft)','size',[['Any'],['Under 1,000',[0,1000]],['1,000–1,500',[1000,1500]],['1,500–2,000',[1500,2000]],['2,000+',[2000,1e6]]]],
+['Builder','mfr',[['Any'],['Golden West','Golden West'],['Marlette','Marlette'],['Clayton','Clayton Homes']]]];
+function ok(p){
+ if(only&&!fav.has(p.id))return false;
+ if(sel.beds&&(sel.beds>=4?p.beds<4:p.beds!==sel.beds))return false;
+ if(sel.baths&&(sel.baths>=3?p.baths<3:Math.floor(p.baths)!==sel.baths))return false;
+ if(sel.size&&!(p.sqft>=sel.size[0]&&p.sqft<sel.size[1]))return false;
+ if(sel.mfr&&p.mfr!==sel.mfr)return false;
+ if(q&&!(p.name+' '+p.series).toLowerCase().includes(q))return false;
+ return true}
+function filters(){$('#filters').innerHTML=G.map(([t,k,o],i)=>`<div class="grp"><b>${t}</b><div class="chips">${o.map(([l,v],j)=>`<button class="chip ${sel[k]===v?'on':''}" data-k="${k}" data-i="${i}" data-j="${j}">${l}</button>`).join('')}</div></div>`).join('')}
+function render(){const L=plans.filter(ok);
+ $('#count').textContent=L.length+(L.length==1?' home':' homes')+(L.length?'':' match. Try clearing a choice.');
+ $('#grid').innerHTML=L.map(p=>`<div class="card" data-id="${esc(p.id)}"><div class="ph" style="background-image:url('${esc(p.photo)}')"></div>${p.tours.length?'<span class="tag">3D tour</span>':''}<button class="heart ${fav.has(p.id)?'on':''}" data-h="${esc(p.id)}" aria-label="Save this home">${fav.has(p.id)?'♥':'♡'}</button><div class="b"><h3>${esc(p.name)}</h3><small>${esc(p.mfr)}, ${esc(p.series)}</small><div class="stats"><div><strong>${p.beds}</strong>bed</div><div><strong>${p.baths}</strong>bath</div><div><strong>${(p.sqft||0).toLocaleString()}</strong>sq ft</div></div></div></div>`).join('');
+ $('#saved').textContent=(only?'Show all homes':'Saved ('+fav.size+')')}
+const show=id=>$(id).classList.remove('hide'),hide=id=>$(id).classList.add('hide');
+function reset(){sel={};q='';only=false;fav.clear();$('#q').value='';['#det','#frame','#lead'].forEach(hide);$('#frame').innerHTML='';filters();render();$('#grid').scrollTop=0}
+async function openPlan(id){const p=await (await fetch('/api/plans/'+encodeURIComponent(id))).json();
+ const sp=Object.entries(p.specs||{}).filter(([,v])=>Object.keys(v).length).map(([k,v])=>`<details><summary>${esc(k)}</summary><dl>${Object.entries(v).map(([a,b])=>`<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('')}</dl></details>`).join('');
+ const size=p.width&&p.length?`<p style="margin:0;color:var(--mute)">About ${Math.round(p.width)} × ${Math.round(p.length)} ft, ${esc(p.sections||'')}-section</p>`:'';
+ $('#det').innerHTML=`<div class="bar"><h2>${esc(p.name)}</h2><button data-a="close" data-t="#det">Back to all homes</button></div><div class="det"><div><div class="ph" style="background-image:url('${esc(p.photo)}')"></div><p>${esc(p.description||'Ask a team member for details about this home.')}</p></div><div><div class="big"><div><strong>${p.beds}</strong>bed</div><div><strong>${p.baths}</strong>bath</div><div><strong>${(p.sqft||0).toLocaleString()}</strong>sq ft</div></div>${size}<div class="acts">${p.tours.map(t=>`<button class="pri" data-a="url" data-u="${esc(t.url)}" data-n="${esc(t.label)}">Open ${esc(t.label.toLowerCase())}</button>`).join('')}${p.pdf?`<button data-a="url" data-print="1" data-u="${esc(p.pdf)}" data-n="Floorplan">Print the floorplan</button>`:''}<button class="warm" data-a="fav" data-id="${esc(p.id)}">${fav.has(p.id)?'Remove from saved':'Save this home'}</button><button data-a="talk">Talk to someone</button></div>${sp}</div></div>`;show('#det')}
+function openFrame(n,u,pr){$('#frame').innerHTML=`<div class="bar"><h2>${esc(n)}</h2>${pr?'<button class="pri" data-a="print">Print</button>':''}<button data-a="close" data-t="#frame">Back to home details</button></div><iframe src="${esc(u)}" allow="fullscreen;xr-spatial-tracking"></iframe>`;show('#frame')}
+function openLead(){$('#lead').innerHTML=`<div class="bar"><h2>Talk to someone</h2><button data-a="close" data-t="#lead">Back</button></div><div class="form"><p>Leave your name and number. A team member will find you, and your saved homes (${fav.size}) go with your request.</p><label>Your name<input id="ln" autocomplete="off"></label><label>Phone number<input id="lp" type="tel" autocomplete="off"></label><div id="le" style="color:#a02c2c;min-height:28px"></div><button class="pri" data-a="send" style="width:100%">Send my request</button></div>`;show('#lead')}
+async function send(){const n=$('#ln').value.trim(),p=$('#lp').value.trim();
+ if(!n||p.replace(/\D/g,'').length<7){$('#le').textContent='Enter your name and a phone number.';return}
+ try{await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n,phone:p,favorites:[...fav]})});
+  $('#lead').querySelector('.form').innerHTML=`<h2>Thank you, ${esc(n)}.</h2><p>Someone will be with you shortly. This screen will reset in a moment.</p>`;setTimeout(reset,7000)}
+ catch(e){$('#le').textContent='Could not send. Please ask a team member for help.'}}
+document.addEventListener('click',e=>{const T=e.target;let c;
+ if(c=T.closest('[data-k]')){sel[c.dataset.k]=G[c.dataset.i][2][c.dataset.j][1];filters();render();return}
+ if(c=T.closest('[data-h]')){const id=c.dataset.h;fav.has(id)?fav.delete(id):fav.add(id);render();return}
+ if(c=T.closest('[data-a]')){const a=c.dataset.a;
+  if(a=='close')hide(c.dataset.t);if(a=='close'&&c.dataset.t=='#frame')$('#frame').innerHTML='';
+  if(a=='url')openFrame(c.dataset.n,c.dataset.u,c.dataset.print);
+  if(a=='print'){const f=$('#frame iframe');try{f.contentWindow.focus();f.contentWindow.print()}catch(x){window.open(f.src)}}
+  if(a=='fav'){const id=c.dataset.id;fav.has(id)?fav.delete(id):fav.add(id);c.textContent=fav.has(id)?'Remove from saved':'Save this home';render()}
+  if(a=='talk')openLead();if(a=='send')send();return}
+ if(c=T.closest('.card'))openPlan(c.dataset.id)});
+$('#q').addEventListener('input',e=>{q=e.target.value.trim().toLowerCase();render()});
+$('#clear').onclick=()=>{sel={};q='';only=false;$('#q').value='';filters();render()};
+$('#saved').onclick=()=>{only=!only;render()};$('#talk').onclick=openLead;
+const idle=()=>{clearTimeout(timer);timer=setTimeout(reset,90000)};['pointerdown','keydown'].forEach(ev=>addEventListener(ev,idle));
+fetch('/api/plans').then(r=>r.json()).then(d=>{plans=d;filters();render();idle()});
+</script></body></html>
