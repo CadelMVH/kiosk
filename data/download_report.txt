@@ -1,0 +1,5 @@
+mar-imagine-5028  PDF  FAILED: HTTP Error 404: Not Found  https://raw.githubusercontent.com/CadelMVH/Wix-Gallery-Downloads/main/Imagine/5028.pdf
+cl-tempo-sweetcoroline  PDF  FAILED: HTTP Error 404: Not Found  https://raw.githubusercontent.com/CadelMVH/Wix-Gallery-Downloads/main/Tempo/Sweet_Coroline.pdf
+cl-tempo-sweetcoroline  photo  FAILED: HTTP Error 403: Forbidden  https://static.wixstatic.com/media/866235_ede03bb987dd4de88749a9f6c981a51d~mv2.png
+cl-tempo-mygirl  PDF  FAILED: HTTP Error 404: Not Found  https://raw.githubusercontent.com/CadelMVH/Wix-Gallery-Downloads/main/Tempo/My_Girl.pdf
+cl-tempo-stayingaliveporch  PDF  FAILED: HTTP Error 404: Not Found  https://raw.githubusercontent.com/CadelMVH/Wix-Gallery-Downloads/main/Tempo/Staying_Alive.pdf
