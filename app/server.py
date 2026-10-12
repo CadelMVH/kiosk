@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from app import ai
 
 DATA = Path(os.environ.get("DATA_DIR", "data"))
 for d in ("pdfs", "photos"):
@@ -56,6 +57,13 @@ def lead(l: Lead):
     with open(DATA / "leads.jsonl", "a", encoding="utf-8") as f:
         f.write(json.dumps({"time": time.strftime("%Y-%m-%d %H:%M:%S"), **l.model_dump()}) + "\n")
     return {"ok": True}
+
+class Chat(BaseModel):
+    messages: list[dict]
+
+@app.post("/api/chat")
+def chat(c: Chat):
+    return ai.respond(plans(), c.messages, DATA)
 
 app.mount("/files/pdfs", StaticFiles(directory=DATA / "pdfs"))
 app.mount("/files/photos", StaticFiles(directory=DATA / "photos"))

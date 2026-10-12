@@ -1,0 +1,3 @@
+{"time": "2026-10-11 10:42:19", "said": "im looking for a big home with lots of rooms", "filters": {"beds_min": 3, "beds_max": 0, "baths_min": 0, "sqft_min": 1500, "sqft_max": 0, "builder": "", "sections": "", "keywords": [], "wants_human": false}, "found": 6}
+{"time": "2026-10-11 10:43:34", "said": "i want a home with tall windows", "filters": {"beds_min": 3, "beds_max": 0, "baths_min": 2, "sqft_min": 1500, "sqft_max": 10000, "builder": "Clayton Homes", "sections": "Single", "keywords": ["tall windows"], "wants_human": false}, "found": 6}
+{"time": "2026-10-11 10:44:13", "said": "home with a view", "filters": {"beds_min": 2, "beds_max": 0, "baths_min": 0, "sqft_min": 0, "sqft_max": 10000, "builder": "", "sections": "", "keywords": [], "wants_human": false}, "found": 6}
